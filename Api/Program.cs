@@ -1,9 +1,20 @@
 using dotenv.net;
 using Api.Modules;
+using Api.Database;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<ApplicationDbContext>(
+    options => options.UseSqlServer(Environment.GetEnvironmentVariable("BD_CONNECTION")));
+
+builder.Services.AddAuthorization();
+
+builder.Services.AddIdentityApiEndpoints<IdentityUser>()
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllers();
 
@@ -31,5 +42,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapIdentityApi<IdentityUser>();
 
 app.Run();

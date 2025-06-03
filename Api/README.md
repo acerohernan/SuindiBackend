@@ -1,5 +1,6 @@
 # Backend
 
 ## TODO list
-- [ ] Implementar librerías de identity
+- [x] Implementar librerías de identity
+- [ ] Customizar  identity
 - [ ] Implementar login con Google
