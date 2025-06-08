@@ -1,4 +1,7 @@
-﻿using Api.Shared;
+﻿using Api.DTOs.Requests;
+using Api.Shared;
+using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -15,6 +18,7 @@ namespace Api.Controllers
             _configuration = configuration;
         }
 
+        [Authorize]
         [HttpGet("/status")]
         public string GetStatus() => "OK";
     }

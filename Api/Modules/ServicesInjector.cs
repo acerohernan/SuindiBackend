@@ -6,7 +6,7 @@ namespace Api.Modules
     {
         public static IServiceCollection AddApiServices(this IServiceCollection services)
         {
-            services.AddScoped<IConfigurationHelper, ConfigurationHelper>();
+            services.AddTransient<IConfigurationHelper, ConfigurationHelper>();
             return services;
         }
     }

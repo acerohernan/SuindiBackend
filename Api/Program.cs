@@ -2,12 +2,16 @@ using dotenv.net;
 using Api.Modules;
 using Api.Database;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 using Api.Models;
+using Api.Services;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using FluentValidation;
 
 DotEnv.Load();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly, includeInternalTypes: true);
 
 builder.Services.AddDbContext<ApplicationDbContext>(
     options => options.UseSqlServer(Environment.GetEnvironmentVariable("BD_CONNECTION")));
@@ -24,6 +28,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddApiServices();
+
+builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 var app = builder.Build();
 
