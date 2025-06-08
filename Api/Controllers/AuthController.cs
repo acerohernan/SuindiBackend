@@ -3,6 +3,7 @@ using Api.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Api.Controllers
 {
@@ -69,6 +70,46 @@ namespace Api.Controllers
 
             if (!result.Succeeded) return BadRequest(new { message = "Email or password is wrong." });
             return Ok(new { message = "User logged in succesfully." });
+        }
+
+        [HttpGet("google")]
+        public async Task<IActionResult> GoogleSignIn()
+        {
+            string redirectUrl = Url.Action("GoogleCallback");
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
+            return new ChallengeResult("Google", properties);
+        }
+
+        [HttpGet("signin-google")]
+        public async Task<IActionResult> GoogleCallback()
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info is null) return Unauthorized();
+
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, false);
+            
+            string[] userInfo = { 
+                info.Principal.FindFirst(ClaimTypes.Name).Value, 
+                info.Principal.FindFirst(ClaimTypes.Email).Value 
+            };
+
+            if (result.Succeeded)
+            {
+                return Ok(new { message = "User logged in successfully." });
+            }
+
+            User user = new User
+            {
+                Email = info.Principal.FindFirst(ClaimTypes.Email).Value,
+                UserName = info.Principal.FindFirst(ClaimTypes.Email).Value
+            };
+
+            IdentityResult identResult = await _userManager.CreateAsync(user);
+            if (!identResult.Succeeded) return Unauthorized();
+
+            await _signInManager.SignInAsync(user, isPersistent: false);
+            // TODO: redireccionar a frontend luego del login
+            return Ok(new { message = "User logged in successfully."});
         }
     }
 }

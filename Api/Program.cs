@@ -6,6 +6,7 @@ using Api.Models;
 using Api.Services;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Identity;
 
 DotEnv.Load();
 
@@ -31,6 +32,13 @@ builder.Services.AddApiServices();
 
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
+builder.Services.AddAuthentication()
+    .AddGoogle(opts => { 
+        opts.ClientId = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_ID") ?? string.Empty;
+        opts.ClientSecret = Environment.GetEnvironmentVariable("GOOGLE_CLIENT_SECRET") ?? string.Empty;
+        opts.SignInScheme = IdentityConstants.ExternalScheme;
+    });
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -49,7 +57,5 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.MapIdentityApi<User>();
 
 app.Run();
